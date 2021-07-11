@@ -55,7 +55,7 @@
 3. 创建默认的用户和分组
 
    ```
-   bin/elasticsearch-setup-passwords interactive
+   bin/elasticsearch-setup-passwords -E http.port=9200 interactive
    ```
 
    如果ES还没起起来会报错：``Connection failure to: http://127.0.0.1:9200/_security/_authenticate?pretty failed: Connection refused: connect``
@@ -150,19 +150,19 @@
    也可以通过命令行的方式：启动第一个节点
 
    ```
-   bin/elasticsearch -E node.name=node0 -E cluster.name=my_cluster -E path.data=node0_data -E http.port=9200 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enabled=true -E xpack.security.transport.ssl.verification_mode=certificate -E xpack.security.transport.ssl.keystore.path=certs/elastic-certificates.p12 -E xpack.security.transport.ssl.truststore.path=certs/elastic-certificates.p12 
+   bin/elasticsearch -E node.name=node0 -E cluster.name=my_cluster -E path.data=node0_data -E http.port=9200 -E transport.port=9300 -E cluster.initial_master_nodes=node0 -E discovery.seed_hosts=localhost:9300 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enabled=true -E xpack.security.transport.ssl.verification_mode=certificate -E xpack.security.transport.ssl.keystore.path=certs/elastic-certificates.p12 -E xpack.security.transport.ssl.truststore.path=certs/elastic-certificates.p12 
    ```
 
    启动第二个节点：
 
    ```
-   bin/elasticsearch -E node.name=node1 -E cluster.name=my_cluster -E path.data=node1_data -E http.port=9201 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enabled=true -E xpack.security.transport.ssl.verification_mode=certificate -E xpack.security.transport.ssl.keystore.path=certs/elastic-certificates.p12 -E xpack.security.transport.ssl.truststore.path=certs/elastic-certificates.p12
+   bin/elasticsearch -E node.name=node1 -E cluster.name=my_cluster -E path.data=node1_data -E http.port=9201 -E transport.port=9301 -E cluster.initial_master_nodes=node0 -E discovery.seed_hosts=localhost:9300,localhost:9301 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enabled=true -E xpack.security.transport.ssl.verification_mode=certificate -E xpack.security.transport.ssl.keystore.path=certs/elastic-certificates.p12 -E xpack.security.transport.ssl.truststore.path=certs/elastic-certificates.p12
    ```
 
    尝试启动第三个节点：没有配置证书，加入集群将会失败
 
    ```
-   bin/elasticsearch -E node.name=node2 -E cluster.name=my_cluster -E path.data=node2_data -E http.port=9202 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enabled=true -E xpack.security.transport.ssl.verification_mode=certificate 
+   bin/elasticsearch -E node.name=node2 -E cluster.name=my_cluster -E path.data=node2_data -E http.port=9202 -E transport.port=9302 -E cluster.initial_master_nodes=node0 -E discovery.seed_hosts=localhost:9300,localhost:9301,localhost:9302 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enabled=true -E xpack.security.transport.ssl.verification_mode=certificate 
    ```
 
 #### 配置HTTPS
@@ -209,7 +209,7 @@
    elasticsearch.ssl.verificationMode: certificate
    ```
 
-6. 重启Kibana：`bin/kibana`
+6. 重启Kibana：`bin/kibana -c config/kibana.yml -p 5602`
 
 7. 配置HTTPS访问Kibana
 
